@@ -1,0 +1,120 @@
+﻿@using Elevator.Library
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Elevator System</title>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="~/css/elevator.css" rel="stylesheet" />
+    <script>
+        $(document).ready(function () {
+            function updateStatus() {
+                $.getJSON('/Elevator/GetStatus', function (data) {
+                    $('#current-floor').text(data.currentFloor);
+                    $('#current-direction').text(data.currentDirection);
+                    $('#door-status').text(data.doorStatus);
+                    
+                    if (data.currentDirection == 'Up') {
+                        $('#current-direction').removeClass('font-red');
+                        $('#current-direction').addClass('font-green');
+                    } else if (data.currentDirection == 'Down') {
+                        $('#current-direction').removeClass('font-green');
+                        $('#current-direction').addClass('font-red');
+                    } else {
+                        $('#current-direction').removeClass('font-red');
+                        $('#current-direction').removeClass('font-green');
+                    }
+
+                    if (data.doorStatus == 'Closed') {
+                        $('#door-status').removeClass('font-green');
+                        $('#door-status').addClass('font-red');
+                    } else {
+                        $('#door-status').removeClass('font-red');
+                        $('#door-status').addClass('font-green');
+                    }
+
+                    $('.floor').removeClass('active');
+                    $('#floor-' + data.currentFloor).addClass('active');
+
+                });
+            }
+            setInterval(updateStatus, 1000);
+        });
+    </script>
+</head>
+<body>
+    <h3>Elevator System</h3>
+    <div class="row">
+        <div class="controls col-lg-5">
+            <h5>Control from outside elevator</h5>
+            <form asp-action="RequestElevator" method="post" class="form-horizontal">
+                <div class="form-row">
+                    <div class="col-md-4 mb-3">
+                        <label for="floor">Select Floor</label>
+                        <select id="floor" name="floor" class="form-control">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="direction">Select Direction: </label>
+                        <select id="direction" name="direction" class="form-control">
+                            <option value="Up">Up</option>
+                            <option value="Down">Down</option>
+                        </select>
+                    </div>
+                </div>
+                <br />
+                <button class="btn btn-primary" type="submit">Request Elevator</button>
+            </form>
+        </div>
+        <div class="col-lg-2">
+        </div>
+        <div class="col-lg-5">
+            <div class="controls">
+                <h5>Control from inside elevator</h5>
+                <form asp-action="SelectFloor" method="post">
+                    <div class="form-row">
+                        <div class="col-md-4 mb-3">
+                            <label for="floor">Select Floor</label>
+                            <select id="floor" name="floor" class="form-control">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Select Floor</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <div class="status-zone">
+        <div class="status">
+            <p>Current Floor: <span id="current-floor">@Model.CurrentFloor</span></p>
+            <p>Current Direction: <span id="current-direction">@Model.CurrentDirection</span></p>
+            <p>
+                Door:
+                <span id="door-status">@Model.DoorStatus</span>
+            </p>
+        </div>
+        <hr />
+        <div class="floor-status">
+            <h2>Status</h2>
+            <div id="floor-1" class="floor">Floor 1</div>
+            <div id="floor-2" class="floor">Floor 2</div>
+            <div id="floor-3" class="floor">Floor 3</div>
+            <div id="floor-4" class="floor">Floor 4</div>
+            <div id="floor-5" class="floor">Floor 5</div>
+        </div>
+    </div>
+</body>
+</html>
